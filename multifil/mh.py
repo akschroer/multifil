@@ -145,7 +145,7 @@ class Spring:
 #                 self.state = "loose"
 #                 return '12'
 #         elif self.state == "loose":
-#             if self._r23(bs) > check:
+#             if self._(bs) > check:
 #                 self.state = "tight"
 #                 return '23'
 #             elif (1 - self._r21(bs)) < check:
@@ -361,6 +361,8 @@ class Head:
         self.detach_rate_type = 'original'
         self.fd_k_0 = 102 * 1e-3
         self.fd_delta = 1.3
+        self.attachment_rate = 72
+        self.ps_rate = 0.1
         # k_T = Boltzmann constant * temperature = (1.381E-23 J/K * 288 K)
         self.k_t = 1.381 * 10 ** -23 * 288 * 10 ** 21  # 10**21 converts J to pN*nM
 
@@ -507,7 +509,7 @@ class Head:
 
         # # ## The binding rate is dependent on the exp of the dist
         # Rate = \tau * \exp^{-dist^2}
-        rate = 72 * m.exp(-distance ** 2)
+        rate = self.attachment_rate * m.exp(-distance ** 2)
         # # ## Return the rate
         return rate
 
@@ -549,7 +551,7 @@ class Head:
         loose_energy = self.energy(bs, "loose")
         tight_energy = self.energy(bs, "tight")
         # # ## Powerstroke rate, per ms
-        rate = (0.6 *  # reduce overall rate
+        rate = (self.ps_rate *  # reduce overall rate 0.6
                 (1 +  # shift rate up to avoid negative rate
                  m.tanh(6 +  # move center of transition to right
                         0.2 * (loose_energy - tight_energy))))
@@ -632,7 +634,8 @@ class Crossbridge(Head):
     # crossbridge can also accept phenotype managers
     VALID_PARAMS = ['mh_c_ks', 'mh_c_kw', 'mh_c_rs', 'mh_c_rw',
                     'mh_g_ks', 'mh_g_kw', 'mh_g_rs', 'mh_g_rw',
-                    'detachment_rate', 'mh_fd_k0', 'mh_fd_delta']
+                    'detachment_rate', 'mh_fd_k0', 'mh_fd_delta', 
+                    'mh_attachment_rate', 'mh_ps_rate']
 
     def __init__(self, index, parent_face, thin_face, **mh_params):
         """Set up the cross-bridge
@@ -936,6 +939,16 @@ class Crossbridge(Head):
         if key in mh_params.keys():
             self.fd_delta = mh_params.pop(key)
         self.constants[key] = self.fd_delta
+        
+        key = 'mh_attachment_rate'
+        if key in mh_params.keys():
+            self.attachment_rate = mh_params.pop(key)
+        self.constants[key] = self.attachment_rate
+        
+        key = 'mh_ps_rate'
+        if key in mh_params.keys():
+            self.ps_rate = mh_params.pop(key)
+        self.constants[key] = self.ps_rate
 
 
 if __name__ == '__main__':

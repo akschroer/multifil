@@ -463,13 +463,9 @@ class Head:
 
     @property
     def timestep_len(self):
-        return self._timestep
-
-    @timestep_len.setter
-    def timestep_len(self, timestep):
-        """Set the length of time_trace step used to calculate transitions"""
-        print("changing timestep to", timestep)     # Why would this be called? -AMA 10MAR2020
-        self._timestep = timestep
+        raise AttributeError("method timestep_len in class Head must be overridden by Child class.")
+        # Prevent inheritance issues where Head objects cycle at ts_l = 1 ms if not told otherwise.
+        # AMA 25MAR2020
 
     def _prob(self, rate):
         """Convert a rate to a probability, based on the current timestep
@@ -664,7 +660,7 @@ class Crossbridge(Head):
         self.bound_to = None  # None if unbound, BindingSite object otherwise
 
         """Handle mh_params"""
-        # ## Handle tm_isomer calculations
+        # ## Handle mh_isomer calculations
         if 'mh_iso' in mh_params.keys():  # !!! This means we don't actually have settings to pass yet !!!
             profiles = mh_params['mh_iso']
             cum_sum = 0

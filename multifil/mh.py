@@ -363,6 +363,7 @@ class Head:
         self.fd_delta = 1.3
         self.attachment_rate = 72
         self.ps_rate = 0.1
+        self.open_rate = 0.5
         # k_T = Boltzmann constant * temperature = (1.381E-23 J/K * 288 K)
         self.k_t = 1.381 * 10 ** -23 * 288 * 10 ** 21  # 10**21 converts J to pN*nM
 
@@ -607,6 +608,18 @@ class Head:
         else:  # rate type is not valid
             print("supplied:", self.detach_rate_type)
             raise TypeError("supplied detachment_rate key is not valid")
+            
+            #Alison attempt
+    def _r41(self, bs):  
+        
+                # # ## Find the distance to the binding site
+
+        # # ## The binding rate is dependent on the exp of the dist
+        # Rate = \tau * \exp^{-dist^2}
+        rate = self.open_rate 
+        # # ## Return the rate
+        return rate
+            # Alison attempt
 
     def _free_energy(self, tip_location, state):
         """Free energy of the Head
@@ -969,6 +982,11 @@ class Crossbridge(Head):
         if key in mh_params.keys():
             self.ps_rate = mh_params.pop(key)
         self.constants[key] = self.ps_rate
+        
+        key = 'mh_open_rate'
+        if key in mh_params.keys():
+            self.open_rate = mh_params.pop(key)
+        self.constants[key] = self.open_rate
 
 
 if __name__ == '__main__':
